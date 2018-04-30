@@ -8,6 +8,14 @@ OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     w = this->parentWidget()->size().height();
 }
 
+void OGLWidget::loadVertices(QVector<QVector3D>& vertices, QVector<QVector3D>& colors)
+{
+    this->vertices = vertices;
+    this->colors = colors;
+
+    QOpenGLWidget::update();
+}
+
 OGLWidget::~OGLWidget() {
     vao.destroy();
     vbo[0].destroy();
@@ -23,6 +31,7 @@ void OGLWidget::initializeGL()
 
     initializeOpenGLFunctions();
     glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
 
@@ -37,13 +46,13 @@ void OGLWidget::initializeGL()
 
     vbo[0].create();
     vbo[0].bind();
-    vbo[0].setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vbo[0].setUsagePattern(QOpenGLBuffer::StaticDraw);
     vbo[0].allocate(vertices.constData(), vertices.size() * sizeof(QVector3D));
     vbo[0].release();
 
     vbo[1].create();
     vbo[1].bind();
-    vbo[1].setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vbo[1].setUsagePattern(QOpenGLBuffer::StaticDraw);
     vbo[1].allocate(colors.constData(), colors.size() * sizeof(QVector3D));
     vbo[1].release();
 
@@ -81,17 +90,20 @@ void OGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     makeCurrent();
 
-    qDebug() << matrix;
+    //qDebug() << matrix;
 
     program->bind();
     vao.bind();
     program->setUniformValue(u_matrix, matrix);
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    glDrawArrays(GL_POINTS, 0, vertices.size());
     vao.release();
     program->release();
 }
 
 void OGLWidget::update()
 {
+    matrix.setToIdentity();
+    matrix.scale(0.003);
+    matrix.rotate(-14, QVector3D(0,0,1));
     QOpenGLWidget::update();
 }

@@ -32,9 +32,33 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QComboBox" name="comboBox"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_load_image">
           <property name="text">
-           <string>Quit</string>
+           <string>Load Image</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_show_image">
+          <property name="text">
+           <string>Show Image</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="l_current_image">
+          <property name="text">
+           <string>Current image:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="l_time">
+          <property name="text">
+           <string>time: </string>
           </property>
          </widget>
         </item>
@@ -52,9 +76,9 @@
          </spacer>
         </item>
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QPushButton" name="pb_quit">
           <property name="text">
-           <string>TextLabel</string>
+           <string>Quit</string>
           </property>
          </widget>
         </item>
@@ -112,14 +136,14 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>pb_quit</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>44</y>
+     <x>50</x>
+     <y>659</y>
     </hint>
     <hint type="destinationlabel">
      <x>88</x>

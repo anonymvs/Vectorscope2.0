@@ -16,6 +16,7 @@ class OGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 public:
     OGLWidget(QWidget *parent);
+    void loadVertices(QVector<QVector3D>& vertices, QVector<QVector3D>& colors);
     ~OGLWidget();
 
 protected:
