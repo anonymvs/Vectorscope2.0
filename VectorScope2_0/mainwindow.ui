@@ -35,6 +35,9 @@
          <widget class="QComboBox" name="comboBox"/>
         </item>
         <item>
+         <widget class="QComboBox" name="cb_color_mode"/>
+        </item>
+        <item>
          <widget class="QPushButton" name="pb_load_image">
           <property name="text">
            <string>Load Image</string>

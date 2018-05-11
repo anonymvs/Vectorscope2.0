@@ -7,7 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    clock_t t = clock();
 
     ui->comboBox->addItem("colorwheel");
     ui->comboBox->addItem("colorbar");
@@ -21,16 +20,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBox->addItem("house");
     ui->comboBox->addItem("natalie");
     ui->comboBox->addItem("colorfulpencils");
+    ui->comboBox->addItem("temple");
 
+    ui->cb_color_mode->addItem("Hsv color hexa");
+    ui->cb_color_mode->addItem("Hsv color circle");
+    ui->cb_color_mode->addItem("YCbCr");
+
+    //FreeImage-er
+    //gamma-t kéne eltölögatni 2.2-re emelni az rgb-t vagy 1/2.2
+    //logaritmikus skála akár
+    //magyarázat jelzések
+    //saját átállás fv
     image = new QImage();
     QString path = "C:/Users/anonymvs/Documents/VectorScope";
-    path.append("/marine.jpg");
+    path.append("/colorwheel.jpg");
     //path.append("/colorbar.jpg");
     image->load(path);
+    clock_t t = clock();
+    vs = new VectorScope(image);
+    ui->openGLWidget->loadScope(vs);
+    clock_t t2 = clock();
 
-    vs.processImage(image);
-
-    ui->openGLWidget->loadVertices(vs.getVertices(), vs.getColors());
+    QString str = "time in ms: ";
+    float dt = (float) t2 - t;
+    str += QString::number(dt / CLOCKS_PER_SEC * 1000);
+    ui->l_time->setText(str);
 }
 
 MainWindow::~MainWindow()
@@ -51,8 +65,16 @@ void MainWindow::on_pb_load_image_clicked()
     image->load(path);
 
     clock_t t = clock();
-    vs.processImage(image);
-    ui->openGLWidget->loadVertices(vs.getVertices(), vs.getColors());
+    if(ui->cb_color_mode->currentIndex() == 0) {
+        vs->processImage(image, ColorMode::HsvColorMode);
+    }
+    if(ui->cb_color_mode->currentIndex() == 1) {
+        vs->processImage(image, ColorMode::QtHsvColorMode);
+    }
+    if(ui->cb_color_mode->currentIndex() == 2) {
+        vs->processImage(image, ColorMode::YCbCrMode);
+    }
+    ui->openGLWidget->loadScope(nullptr);
     clock_t t2 = clock();
 
     QString str = "time in ms: ";

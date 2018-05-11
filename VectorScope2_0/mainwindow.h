@@ -25,7 +25,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QImage *image;
-    VectorScope vs;
+    VectorScope* vs;
 };
 
 #endif // MAINWINDOW_H

@@ -1,6 +1,8 @@
 #ifndef OGLWIDGET_H
 #define OGLWIDGET_H
 
+#include <vectorscope.h>.h>
+
 #include <QWidget>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
@@ -16,7 +18,7 @@ class OGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 public:
     OGLWidget(QWidget *parent);
-    void loadVertices(QVector<QVector3D>& vertices, QVector<QVector3D>& colors);
+    void loadScope(VectorScope *scope);
     ~OGLWidget();
 
 protected:
@@ -31,12 +33,12 @@ private:
     QOpenGLBuffer vbo[2];
     QOpenGLVertexArrayObject vao;
     QOpenGLShaderProgram *program;
-    QVector<QVector3D> vertices;
-    QVector<QVector3D> colors;
     QMatrix4x4 matrix;
     int u_matrix;
     int w;
     int h;
+
+    VectorScope *scope;
 };
 
 static const char *vertexShaderSource = R"(
