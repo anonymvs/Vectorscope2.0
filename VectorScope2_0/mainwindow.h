@@ -22,6 +22,8 @@ private slots:
 
     void on_pb_show_image_clicked();
 
+    void on_vs_gamma_slider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     QImage *image;

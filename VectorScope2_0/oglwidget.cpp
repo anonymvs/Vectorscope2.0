@@ -3,10 +3,35 @@
 #include <QDebug>
 #include <QGLFormat>
 
+static const char *vertexShaderSource = R"(
+    #version 330
+    layout(location = 0) in vec3 position;
+    layout(location = 1) in vec3 color;
+    out vec4 vColor;
+
+    uniform mat4 matrix;
+
+    void main(void)
+    {
+        gl_Position = vec4(position, 1) * matrix;
+        vColor = vec4(color, 1);
+    }
+)";
+
+static const char *fragmentShaderSource = R"(
+      #version 330
+      in vec4 vColor;
+      out vec4 fColor;
+
+      void main(void)
+      {
+          gl_FragColor = vColor;
+      }
+
+)";
+
 OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
-    //setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
-
     h = this->parentWidget()->size().height();
     w = this->parentWidget()->size().height();
     scope = nullptr;
@@ -15,12 +40,11 @@ OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 void OGLWidget::loadScope(VectorScope *scope)
 {
     if(this->scope != nullptr) {
-        this->scope->reload(program);
+        this->scope->reload();
         QOpenGLWidget::update();
     } else {
         this->scope = scope;
     }
-//    QOpenGLWidget::update();
 }
 
 OGLWidget::~OGLWidget() {
@@ -30,9 +54,6 @@ OGLWidget::~OGLWidget() {
 
 void OGLWidget::initializeGL()
 {
-    //vertices << QVector3D(0.00f, 0.75f, 1.0f) << QVector3D( 0.75f, -0.75f, 1.0f) << QVector3D(-0.75f, -0.75f, 1.0f);
-
-    //colors << QVector3D(1.0f, 0.0f, 0.0f) << QVector3D(0.0f, 1.0f, 0.0f) << QVector3D(0.0f, 0.0f, 1.0f);
     if(scope == nullptr) {
         return;
     }

@@ -21,18 +21,25 @@ class VectorScope : protected QOpenGLFunctions
 public:
     VectorScope(QImage *image);
     ~VectorScope();
+
+    void setGamma(float gamma);
+
     void processImage(QImage *image, int mode);
     void clearImage();
-    void reload(QOpenGLShaderProgram *program);
+    void reload();
 
     void initialize(QOpenGLShaderProgram *program);
     void draw();
     void update();
 
 private:
-    bool QtHsvColorProcess(QColor color, QVector3D& point);
-    void HsvColorProcess(QColor color, QVector3D& point);
-    QVector3D RgbToHsv(float r, float g, float b);
+    bool qtHsvColorProcess(QColor color, QVector3D& point);
+    void hsvColorProcess(QColor color, QVector3D& point);
+    float gammaCorrection(float v);
+    QVector3D rgbToHsv(float r, float g, float b);
+
+    float gamma = 1;
+    float C = 1; //set by the monitor contrast value, by default is 1
 
     QOpenGLBuffer vbo[2];
     QOpenGLVertexArrayObject vao;

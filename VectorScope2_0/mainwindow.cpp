@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->l_gamma_value->setNum(((double)ui->vs_gamma_slider->value())/100);
+
     ui->comboBox->addItem("colorwheel");
     ui->comboBox->addItem("colorbar");
     ui->comboBox->addItem("mycolorbar");
@@ -36,8 +38,10 @@ MainWindow::MainWindow(QWidget *parent) :
     path.append("/colorwheel.jpg");
     //path.append("/colorbar.jpg");
     image->load(path);
+    QImage scaled = image->scaled(768, 1024, Qt::KeepAspectRatio);
     clock_t t = clock();
-    vs = new VectorScope(image);
+    vs = new VectorScope(&scaled);
+    vs->setGamma(2 * ((float)ui->vs_gamma_slider->value() + 1) / 100);
     ui->openGLWidget->loadScope(vs);
     clock_t t2 = clock();
 
@@ -63,16 +67,17 @@ void MainWindow::on_pb_load_image_clicked()
     path.append(".jpg");
     //std::cout << path.data() << "\n";
     image->load(path);
+    QImage scaled = image->scaled(600, 800, Qt::KeepAspectRatio);
 
     clock_t t = clock();
     if(ui->cb_color_mode->currentIndex() == 0) {
-        vs->processImage(image, ColorMode::HsvColorMode);
+        vs->processImage(&scaled, ColorMode::HsvColorMode);
     }
     if(ui->cb_color_mode->currentIndex() == 1) {
-        vs->processImage(image, ColorMode::QtHsvColorMode);
+        vs->processImage(&scaled, ColorMode::QtHsvColorMode);
     }
     if(ui->cb_color_mode->currentIndex() == 2) {
-        vs->processImage(image, ColorMode::YCbCrMode);
+        vs->processImage(&scaled, ColorMode::YCbCrMode);
     }
     ui->openGLWidget->loadScope(nullptr);
     clock_t t2 = clock();
@@ -86,4 +91,10 @@ void MainWindow::on_pb_load_image_clicked()
 void MainWindow::on_pb_show_image_clicked()
 {
 
+}
+
+void MainWindow::on_vs_gamma_slider_valueChanged(int value)
+{
+    ui->l_gamma_value->setNum(((double)value)/100);
+    vs->setGamma(((float)value + 1)/100);
 }

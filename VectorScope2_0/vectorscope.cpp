@@ -19,63 +19,51 @@ VectorScope::~VectorScope() {
     vao.destroy();
 }
 
+void VectorScope::setGamma(float gamma)
+{
+    this->gamma = gamma;
+}
+
 void VectorScope::processImage(QImage *image, int mode)
 {
 //    QImage im;
 //    if(image->size().height() > 1080 || image->size().width() > 1920 ) {
 //        im = image->scaled(1080, 1920, Qt::KeepAspectRatio);
 //    }
-    switch (mode) {
-    case ColorMode::HsvColorMode:
-        qDebug() << "hsvcolormode " << ColorMode::HsvColorMode;
-        break;
-    case ColorMode::QtHsvColorMode:
-        qDebug() << "QThsvcolormode " << ColorMode::QtHsvColorMode;
-        break;
-    case ColorMode::YCbCrMode:
-        qDebug() << "yyfdfs " << ColorMode::YCbCrMode;
-        break;
-    default:
-        break;
-    }
 
     if(!vertices.isEmpty() && !colors.isEmpty()) {
         vertices.clear();
         colors.clear();
     }
+
     for(int i = 0; i < image->size().height(); i++) {
         for(int j = 0; j < image->size().width(); j++) {
             QColor color = image->pixelColor(j, i);
             QVector3D point;
-            switch (mode) {
-            case ColorMode::HsvColorMode:
-                HsvColorProcess(color, point);
+            if(mode == ColorMode::HsvColorMode) {
+                hsvColorProcess(color, point);
                 vertices.push_back(point);
                 colors.push_back(QVector3D(color.redF(), color.greenF(), color.blueF()));
-                break;
-            case ColorMode::QtHsvColorMode:
-                if(QtHsvColorProcess(color, point)) {
-                    RgbToHsv(color.redF(), color.greenF(), color.blueF());
+            }
+            if(mode == ColorMode::QtHsvColorMode) {
+                if(qtHsvColorProcess(color, point)) {
+                    rgbToHsv(color.redF(), color.greenF(), color.blueF());
                     vertices.push_back(point);
                     colors.push_back(QVector3D(color.redF(), color.greenF(), color.blueF()));
                 }
-                break;
-            case ColorMode::YCbCrMode:
-                break;
-            default:
-                break;
             }
+            if(mode == ColorMode::YCbCrMode) {
 
+            }
         }
     }
-//    for(int j = 0; j < 360; j++) {
-//        vertices.push_back(QVector3D(255 * qSin(qDegreesToRadians((float)j)), 255 * qCos(qDegreesToRadians((float)j)),0));
-//        vertices.push_back(QVector3D(0,0,0));
-//    }
 }
 
-bool VectorScope::QtHsvColorProcess(QColor color, QVector3D& point)
+bool VectorScope::qtHsvColorProcess(QColor color, QVector3D& point)
 {  
+    color.setRedF(gammaCorrection(color.redF()));
+    color.setGreenF(gammaCorrection(color.greenF()));
+    color.setBlueF(gammaCorrection(color.blueF()));
     double hue = 360 - color.hsvHueF() * 360;
     double sat = color.hsvSaturationF() * 255;
 
@@ -90,16 +78,22 @@ bool VectorScope::QtHsvColorProcess(QColor color, QVector3D& point)
     return true;
 }
 
-void VectorScope::HsvColorProcess(QColor color, QVector3D &point)
+void VectorScope::hsvColorProcess(QColor color, QVector3D &point)
 {
-    QVector3D hsv = RgbToHsv(color.redF(), color.greenF(), color.blueF());
+    QVector3D hsv = rgbToHsv(color.redF(), color.greenF(), color.blueF());
     point.setX(hsv.y() * 255 * qSin(qDegreesToRadians(360 - qRadiansToDegrees(hsv.x()))));
     point.setY(hsv.y() * 255 * qCos(qDegreesToRadians(360 - qRadiansToDegrees(hsv.x()))));
     point.setZ(0);
     return;
 }
 
-QVector3D VectorScope::RgbToHsv(float r, float g, float b)
+float VectorScope::gammaCorrection(float v)
+{
+    //gamma = 0.5;
+    return C * qPow(v, gamma);
+}
+
+QVector3D VectorScope::rgbToHsv(float r, float g, float b)
 {
 //    float h, s, v;
 //    float max = qMax(r, qMax(g, b));
@@ -138,6 +132,7 @@ QVector3D VectorScope::RgbToHsv(float r, float g, float b)
     float c = qSqrt(qPow(alpha, 2) + qPow(beta, 2)); //chroma
 
     v = qMax(r, qMax(g, b));
+    v = gammaCorrection(v);
 
     if(v == 0) {
         s = 0;
@@ -149,7 +144,7 @@ QVector3D VectorScope::RgbToHsv(float r, float g, float b)
     return QVector3D(h, s, v);
 }
 
-void VectorScope::reload(QOpenGLShaderProgram *program)
+void VectorScope::reload()
 {
     vbo[0].bind();
     vbo[0].allocate(vertices.constData(), vertices.size() * sizeof(QVector3D));
@@ -158,7 +153,6 @@ void VectorScope::reload(QOpenGLShaderProgram *program)
     vbo[1].bind();
     vbo[1].allocate(colors.constData(), colors.size() * sizeof(QVector3D));
     vbo[1].release();
-
 }
 
 void VectorScope::initialize(QOpenGLShaderProgram *program)
