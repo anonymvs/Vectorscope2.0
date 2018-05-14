@@ -35,9 +35,14 @@ OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)
     h = this->parentWidget()->size().height();
     w = this->parentWidget()->size().height();
     scope = nullptr;
+    marker = new Marker();
+    toneLine = new SkinToneLine();
+    for(int i = 0; i < 6; i++) {
+        targetMarkers.push_back(new TargetBox(i * 60));
+    }
 }
 
-void OGLWidget::loadScope(VectorScope *scope)
+void OGLWidget::loadScope(OglObject *scope)
 {
     if(this->scope != nullptr) {
         this->scope->reload();
@@ -47,9 +52,24 @@ void OGLWidget::loadScope(VectorScope *scope)
     }
 }
 
+void OGLWidget::setZoom(float zoom)
+{
+    scope->setZoom(zoom);
+    marker->setZoom(zoom);
+    toneLine->setZoom(zoom);
+    foreach (auto* target, targetMarkers) {
+        target->setZoom(zoom);
+    }
+}
+
 OGLWidget::~OGLWidget() {
     delete scope;
+    delete marker;
     delete program;
+    delete toneLine;
+    foreach (auto* target, targetMarkers) {
+        delete target;
+    }
 }
 
 void OGLWidget::initializeGL()
@@ -70,13 +90,12 @@ void OGLWidget::initializeGL()
     program->link();
     program->bind();
 
-    u_matrix = program->uniformLocation("matrix");
-    matrix.setToIdentity();
-
     scope->initialize(program);
-
-    program->bindAttributeLocation("position", 0);
-    program->bindAttributeLocation("color", 1);
+    marker->initialize(program);
+    toneLine->initialize(program);
+    foreach (auto* target, targetMarkers) {
+        target->initialize(program);
+    }
 
     program->release();
 
@@ -99,16 +118,23 @@ void OGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     program->bind();
-    program->setUniformValue(u_matrix, matrix);
-    scope->draw();
+    scope->draw(program);
+    marker->draw(program);
+    toneLine->draw(program);
+    foreach (auto* target, targetMarkers) {
+        target->draw(program);
+    }
     program->release();
 
 }
 
 void OGLWidget::update()
 {
-    matrix.setToIdentity();
-    matrix.scale(0.003);
-    matrix.rotate(-14, QVector3D(0,0,1));
+    marker->update();
+    scope->update();
+    toneLine->update();
+    foreach (auto* target, targetMarkers) {
+        target->update();
+    }
     QOpenGLWidget::update();
 }

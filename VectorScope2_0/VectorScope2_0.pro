@@ -27,12 +27,20 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     oglwidget.cpp \
-    vectorscope.cpp
+    vectorscope.cpp \
+    marker.cpp \
+    oglobject.cpp \
+    skintoneline.cpp \
+    targetbox.cpp
 
 HEADERS += \
         mainwindow.h \
     oglwidget.h \
-    vectorscope.h
+    vectorscope.h \
+    marker.h \
+    oglobject.h \
+    skintoneline.h \
+    targetbox.h
 
 FORMS += \
         mainwindow.ui

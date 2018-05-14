@@ -10,10 +10,11 @@ VectorScope::VectorScope(QImage *image)
 //    QVector3D q5 = RgbToHsv(0.0, 1.0, 0.0);
 //    QVector3D q6 = RgbToHsv(0.0, 0.0, 1.0);
     processImage(image, ColorMode::HsvColorMode);
-
+    zoom = 0;
 }
 
-VectorScope::~VectorScope() {
+VectorScope::~VectorScope()
+{
     vbo[0].destroy();
     vbo[1].destroy();
     vao.destroy();
@@ -22,6 +23,11 @@ VectorScope::~VectorScope() {
 void VectorScope::setGamma(float gamma)
 {
     this->gamma = gamma;
+}
+
+void VectorScope::setColored(int b)
+{
+    isColored = b;
 }
 
 void VectorScope::processImage(QImage *image, int mode)
@@ -43,13 +49,19 @@ void VectorScope::processImage(QImage *image, int mode)
             if(mode == ColorMode::HsvColorMode) {
                 hsvColorProcess(color, point);
                 vertices.push_back(point);
-                colors.push_back(QVector3D(color.redF(), color.greenF(), color.blueF()));
+                if(isColored)
+                    colors.push_back(QVector3D(color.redF(), color.greenF(), color.blueF()));
+                else
+                    colors.push_back(QVector3D(1,1,1));
             }
             if(mode == ColorMode::QtHsvColorMode) {
                 if(qtHsvColorProcess(color, point)) {
                     rgbToHsv(color.redF(), color.greenF(), color.blueF());
                     vertices.push_back(point);
-                    colors.push_back(QVector3D(color.redF(), color.greenF(), color.blueF()));
+                    if(isColored)
+                        colors.push_back(QVector3D(color.redF(), color.greenF(), color.blueF()));
+                    else
+                        colors.push_back(QVector3D(1,1,1));
                 }
             }
             if(mode == ColorMode::YCbCrMode) {
@@ -81,8 +93,8 @@ bool VectorScope::qtHsvColorProcess(QColor color, QVector3D& point)
 void VectorScope::hsvColorProcess(QColor color, QVector3D &point)
 {
     QVector3D hsv = rgbToHsv(color.redF(), color.greenF(), color.blueF());
-    point.setX(hsv.y() * 255 * qSin(qDegreesToRadians(360 - qRadiansToDegrees(hsv.x()))));
-    point.setY(hsv.y() * 255 * qCos(qDegreesToRadians(360 - qRadiansToDegrees(hsv.x()))));
+    point.setX(hsv.y() * 255 * qSin(2 * M_PI - hsv.x()));
+    point.setY(hsv.y() * 255 * qCos(2 * M_PI - hsv.x()));
     point.setZ(0);
     return;
 }
@@ -144,58 +156,24 @@ QVector3D VectorScope::rgbToHsv(float r, float g, float b)
     return QVector3D(h, s, v);
 }
 
-void VectorScope::reload()
-{
-    vbo[0].bind();
-    vbo[0].allocate(vertices.constData(), vertices.size() * sizeof(QVector3D));
-    vbo[0].release();
-
-    vbo[1].bind();
-    vbo[1].allocate(colors.constData(), colors.size() * sizeof(QVector3D));
-    vbo[1].release();
-}
-
-void VectorScope::initialize(QOpenGLShaderProgram *program)
-{
-    initializeOpenGLFunctions();
-
-    vbo[0].create();
-    vbo[0].bind();
-    vbo[0].setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vbo[0].allocate(vertices.constData(), vertices.size() * sizeof(QVector3D));
-    vbo[0].release();
-
-    vbo[1].create();
-    vbo[1].bind();
-    vbo[1].setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vbo[1].allocate(colors.constData(), colors.size() * sizeof(QVector3D));
-    vbo[1].release();
-
-    vao.create();
-    vao.bind();
-
-    vbo[0].bind();
-    program->enableAttributeArray(0);
-    program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 0);
-    vbo[0].release();
-    vbo[1].bind();
-    program->enableAttributeArray(1);
-    program->setAttributeBuffer(1, GL_FLOAT, 0, 3, 0);
-    vbo[0].release();
-
-    vao.release();
-}
-
-void VectorScope::draw()
-{
-
-    vao.bind();
-    glDrawArrays(GL_POINTS, 0, vertices.size());
-    vao.release();
-}
-
 void VectorScope::clearImage()
 {
     vertices.clear();
     colors.clear();
+}
+
+void VectorScope::update()
+{
+    matrix.setToIdentity();
+    matrix.scale(0.003 + zoom);
+    matrix.rotate(-14, QVector3D(0,0,1));
+}
+
+void VectorScope::draw(QOpenGLShaderProgram *program)
+{
+
+    program->setUniformValue(u_matrix, matrix);
+    vao.bind();
+    glDrawArrays(GL_POINTS, 0, vertices.size());
+    vao.release();
 }

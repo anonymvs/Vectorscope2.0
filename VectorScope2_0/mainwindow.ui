@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
+    <width>860</width>
     <height>691</height>
    </rect>
   </property>
@@ -32,6 +32,13 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QLabel" name="l_current_image">
+          <property name="text">
+           <string>Current image:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QComboBox" name="comboBox"/>
         </item>
         <item>
@@ -52,16 +59,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="l_current_image">
+         <widget class="QCheckBox" name="chb_colored">
           <property name="text">
-           <string>Current image:</string>
+           <string>Colored</string>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="l_time">
-          <property name="text">
-           <string>time: </string>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -77,6 +80,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="l_time">
+          <property name="text">
+           <string>time: </string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pb_quit">
@@ -102,6 +112,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>200</height>
+         </size>
+        </property>
        </widget>
       </item>
      </layout>
@@ -125,10 +141,37 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="l_gamma_value">
         <property name="text">
          <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="4">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="l_zoom_title">
+        <property name="text">
+         <string>Zoom slider:</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QSlider" name="vs_zoom_slider">
+        <property name="minimum">
+         <number>-50</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
@@ -141,7 +184,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>830</width>
+     <width>860</width>
      <height>21</height>
     </rect>
    </property>

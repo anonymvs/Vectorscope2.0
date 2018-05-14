@@ -98,3 +98,13 @@ void MainWindow::on_vs_gamma_slider_valueChanged(int value)
     ui->l_gamma_value->setNum(((double)value)/100);
     vs->setGamma(((float)value + 1)/100);
 }
+
+void MainWindow::on_vs_zoom_slider_valueChanged(int value)
+{
+    ui->openGLWidget->setZoom(4 * ((double)value)/100);
+}
+
+void MainWindow::on_chb_colored_stateChanged(int arg1)
+{
+    vs->setColored(arg1);
+}
