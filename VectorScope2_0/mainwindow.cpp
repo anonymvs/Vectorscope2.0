@@ -8,6 +8,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    width = 800;
+    height = 600;
+
     ui->l_gamma_value->setNum(((double)ui->vs_gamma_slider->value())/100);
 
     ui->comboBox->addItem("colorwheel");
@@ -38,10 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     path.append("/colorwheel.jpg");
     //path.append("/colorbar.jpg");
     image->load(path);
-    QImage scaled = image->scaled(768, 1024, Qt::KeepAspectRatio);
+    QImage scaled = image->scaled(height, width, Qt::KeepAspectRatio);
     clock_t t = clock();
     vs = new VectorScope(&scaled);
-    vs->setGamma(2 * ((float)ui->vs_gamma_slider->value() + 1) / 100);
+    vs->setGamma(0.2);
     ui->openGLWidget->loadScope(vs);
     clock_t t2 = clock();
 
@@ -58,6 +61,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pb_load_image_clicked()
 {
+    if(!ui->le_image_width->text().isEmpty() && !ui->le_image_height->text().isEmpty()) {
+        width = ui->le_image_width->text().toInt();
+        height = ui->le_image_height->text().toInt();
+    }
     delete image;
     image = new QImage();
     QString path = "C:/Users/anonymvs/Documents/VectorScope";
@@ -67,7 +74,7 @@ void MainWindow::on_pb_load_image_clicked()
     path.append(".jpg");
     //std::cout << path.data() << "\n";
     image->load(path);
-    QImage scaled = image->scaled(600, 800, Qt::KeepAspectRatio);
+    QImage scaled = image->scaled(height, width, Qt::KeepAspectRatio);
 
     clock_t t = clock();
     if(ui->cb_color_mode->currentIndex() == 0) {

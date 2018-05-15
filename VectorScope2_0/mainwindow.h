@@ -33,6 +33,7 @@ private:
     Ui::MainWindow *ui;
     QImage *image;
     VectorScope* vs;
+    int width, height;
 };
 
 #endif // MAINWINDOW_H
